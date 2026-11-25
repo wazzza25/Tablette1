@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<title>Tablette</title>
+<style>
+html,body{margin:0;height:100%;background:#12151c;color:#f3efe8;font-family:Helvetica,Arial,sans-serif;overflow:hidden}
+#w{position:absolute;top:0;left:0;right:0;bottom:0;padding:2%;display:-webkit-flex;display:flex;-webkit-flex-direction:column;flex-direction:column}
+.row{display:-webkit-flex;display:flex;-webkit-flex:1;flex:1;margin-bottom:2%}
+.row:last-child{margin-bottom:0}
+.box{-webkit-flex:1;flex:1;background:#1c212b;border-radius:14px;padding:2.6%;margin-right:2%;position:relative;overflow:hidden}
+.box:last-child{margin-right:0}
+.big{font-size:10vmin;font-weight:bold;line-height:1}
+.mid{font-size:3.4vmin;color:#aeb6c4;margin-top:1.2vmin}
+.small{font-size:2.5vmin;color:#8a93a3}
+.ico{font-size:9vmin;line-height:1}
+#fc{padding:1.6%}
+.d{-webkit-flex:1;flex:1;text-align:center;border-right:1px solid #2c3340;padding-top:1vmin}
+.d:last-child{border-right:0}
+.d .j{font-size:2.8vmin;color:#aeb6c4;text-transform:capitalize}
+.d .i{font-size:7vmin;margin:1vmin 0}
+.d .t{font-size:3.2vmin;font-weight:bold}
+.d .p{font-size:2.4vmin;color:#7fb3e6;margin-top:.6vmin}
+#gp{background:#7a1520}
+#gp .small,#gp .mid{color:#f0c9cd}
+#fl{font-size:9vmin;line-height:1}
+#nm{font-size:4.2vmin;font-weight:bold;margin-top:1vmin}
+#cd{font-size:7.4vmin;font-weight:bold;margin-top:1.6vmin}
+#px{font-size:9vmin;font-weight:bold;line-height:1}
+#var{font-size:4vmin;font-weight:bold;margin-top:1vmin}
+#sp{margin-top:2vmin;width:100%;height:12vmin}
+#up{position:absolute;right:2.6%;bottom:1.6%;font-size:2vmin;color:#5d6676}
+</style></head><body>
+<div id="w">
+ <div class="row">
+  <div class="box"><div class="big" id="clk">--:--</div><div class="mid" id="dt"></div><div class="small" id="sun" style="margin-top:2vmin"></div></div>
+  <div class="box"><div style="display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center"><div class="ico" id="wi"></div><div class="big" id="tmp" style="margin-left:3%">--°</div></div><div class="mid" id="wx">En attente des données…</div><div class="small" id="mm" style="margin-top:1.5vmin"></div></div>
+ </div>
+ <div class="row"><div class="box" id="fc" style="display:-webkit-flex;display:flex"></div></div>
+ <div class="row">
+  <div class="box" id="gp">
+   <div class="small">Prochain Grand Prix</div>
+   <div id="fl"></div><div id="nm"></div><div id="cd"></div><div class="mid">jours · h · min · s</div>
+  </div>
+  <div class="box"><div class="small">Take-Two (TTWO) · en dollars</div><div id="px" style="margin-top:1.5vmin">--</div><div id="var"></div><div id="sp"></div></div>
+ </div>
+</div>
+<div id="up"></div>
+<script>
+var R=[
+[2027,3,14,"\uD83C\uDDE7\uD83C\uDDED","GP de Bahreïn","Sakhir"],
+[2027,3,21,"\uD83C\uDDF8\uD83C\uDDE6","GP d’Arabie saoudite","Djeddah"],
+[2027,4,4,"\uD83C\uDDE6\uD83C\uDDFA","GP d’Australie","Melbourne"],
+[2027,4,11,"\uD83C\uDDEF\uD83C\uDDF5","GP du Japon","Suzuka"],
+[2027,4,18,"\uD83C\uDDE8\uD83C\uDDF3","GP de Chine","Shanghai"],
+[2027,5,2,"\uD83C\uDDFA\uD83C\uDDF8","GP de Miami","Miami"],
+[2027,5,23,"\uD83C\uDDE8\uD83C\uDDE6","GP du Canada","Montréal"],
+[2027,6,6,"\uD83C\uDDF2\uD83C\uDDE8","GP de Monaco","Monaco"],
+[2027,6,20,"\uD83C\uDDF5\uD83C\uDDF9","GP du Portugal","Portimão"],
+[2027,7,4,"\uD83C\uDDEC\uD83C\uDDE7","GP de Grande-Bretagne","Silverstone"]
+];
+var JOURS=["dimanche","lundi","mardi","mercredi","jeudi","vendredi","samedi"];
+var MOIS=["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
+var WC={0:"Ciel dégagé",1:"Plutôt dégagé",2:"Partiellement nuageux",3:"Couvert",45:"Brouillard",48:"Brouillard givrant",51:"Bruine",53:"Bruine",55:"Bruine",61:"Pluie faible",63:"Pluie",65:"Forte pluie",71:"Neige faible",73:"Neige",75:"Forte neige",80:"Averses",81:"Averses",82:"Fortes averses",95:"Orage",96:"Orage",99:"Orage"};
+function $(i){return document.getElementById(i)}
+function z(n){return n<10?"0"+n:""+n}
+function ic(c){if(c===0)return"\u2600\uFE0F";if(c<=2)return"\u26C5";if(c===3)return"\u2601\uFE0F";if(c<=48)return"\uD83C\uDF2B\uFE0F";if(c<=57)return"\uD83C\uDF26\uFE0F";if(c<=67||(c>=80&&c<=82))return"\uD83C\uDF27\uFE0F";if(c<=77||c===85||c===86)return"\u2744\uFE0F";return"\u26C8\uFE0F"}
+function when(r){return new Date(r[0],r[1]-1,r[2],15,0,0)}
+function tick(){
+ var n=new Date();
+ $("clk").innerHTML=z(n.getHours())+":"+z(n.getMinutes());
+ $("dt").innerHTML=JOURS[n.getDay()]+" "+n.getDate()+" "+MOIS[n.getMonth()]+" "+n.getFullYear();
+ var i=0;while(i<R.length&&when(R[i])<=n)i++;
+ if(i>=R.length){$("nm").innerHTML="Saison terminée";$("cd").innerHTML="";return}
+ var r=R[i],s=Math.floor((when(r)-n)/1000);
+ var j=Math.floor(s/86400);s-=j*86400;var h=Math.floor(s/3600);s-=h*3600;var m=Math.floor(s/60);s-=m*60;
+ $("fl").innerHTML=r[3];$("nm").innerHTML=r[4]+" – "+r[5];
+ $("cd").innerHTML=j+" j "+z(h)+" h "+z(m)+" min "+z(s)+" s";
+}
+setInterval(tick,1000);tick();
+function show(d){
+ var o=d.meteo;
+ if(o&&o.current){
+  var c=o.current,y=o.daily;
+  $("wi").innerHTML=ic(c.weather_code);
+  $("tmp").innerHTML=Math.round(c.temperature_2m)+"°";
+  $("wx").innerHTML=(WC[c.weather_code]||"")+" · Châtillon-le-Duc";
+  $("mm").innerHTML="Ressenti "+Math.round(c.apparent_temperature)+"° · vent "+Math.round(c.wind_speed_10m)+" km/h";
+  $("sun").innerHTML="\u2600\uFE0F lever "+y.sunrise[0].slice(11,16)+" · coucher "+y.sunset[0].slice(11,16);
+  var h="";
+  for(var k=0;k<y.time.length;k++){
+   var p=y.time[k].split("-"),dn=JOURS[new Date(p[0],p[1]-1,p[2]).getDay()].slice(0,3);
+   h+='<div class="d"><div class="j">'+(k===0?"auj.":dn)+'</div><div class="i">'+ic(y.weather_code[k])+'</div><div class="t">'+Math.round(y.temperature_2m_max[k])+"° / "+Math.round(y.temperature_2m_min[k])+'°</div><div class="p">\uD83D\uDCA7 '+y.precipitation_probability_max[k]+" %</div></div>";
+  }
+  $("fc").innerHTML=h;
+ }
+ var t=d.ttwo;
+ if(t&&t.series&&t.series.length>1){
+  var sr=t.series,pv=sr[sr.length-2],pc=(t.price-pv)/pv*100,up=pc>=0,col=up?"#5ec58a":"#ff7a7a";
+  $("px").innerHTML=t.price.toFixed(2).replace(".",",")+" $";
+  $("var").innerHTML=(up?"\u25B2 +":"\u25BC ")+pc.toFixed(2).replace(".",",")+" % sur la veille";
+  $("var").style.color=col;
+  var mn=Math.min.apply(null,sr),mx=Math.max.apply(null,sr),pts="";
+  for(var q=0;q<sr.length;q++){pts+=(q*300/(sr.length-1)).toFixed(1)+","+(76-(sr[q]-mn)/((mx-mn)||1)*72).toFixed(1)+" "}
+  $("sp").innerHTML='<svg viewBox="0 0 300 80" preserveAspectRatio="none" width="100%" height="100%"><polyline fill="none" stroke="'+col+'" stroke-width="2.5" points="'+pts+'"/></svg>';
+ }
+ if(d.maj){var u=new Date(d.maj);$("up").innerHTML="Mis à jour à "+z(u.getHours())+":"+z(u.getMinutes())}
+}
+function charger(){
+ try{
+  var x=new XMLHttpRequest();
+  x.open("GET","data.json?t="+new Date().getTime(),true);
+  x.onreadystatechange=function(){
+   if(x.readyState!==4)return;
+   if(x.status===200){try{show(JSON.parse(x.responseText))}catch(e){}}
+   else{$("wx").innerHTML="Données pas encore disponibles"}
+  };
+  x.send();
+ }catch(e){}
+}
+charger();setInterval(charger,600000);
+</script></body></html>
