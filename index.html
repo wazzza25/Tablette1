@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<title>Tablette</title>
+<style>
+html,body{margin:0;height:100%;background:#12151c;color:#f3efe8;font-family:Helvetica,Arial,sans-serif;overflow:hidden}
+#w{position:absolute;top:0;left:0;right:0;bottom:0;padding:2.2%;display:-webkit-flex;display:flex;-webkit-flex-direction:column;flex-direction:column}
+.row{display:-webkit-flex;display:flex;-webkit-flex:1;flex:1;margin-bottom:2%}
+.row:last-child{margin-bottom:0}
+.box{-webkit-flex:1;flex:1;background:#1c212b;border-radius:14px;padding:3%;margin-right:2%;position:relative;overflow:hidden}
+.box:last-child{margin-right:0}
+.big{font-size:9vmin;font-weight:bold;line-height:1}
+.mid{font-size:3.6vmin;color:#aeb6c4;margin-top:1.5vmin}
+.small{font-size:2.6vmin;color:#8a93a3}
+#gp{background:#7a1520}
+#gp .flag{font-size:11vmin;line-height:1}
+#gp .name{font-size:4.6vmin;font-weight:bold;margin-top:1vmin}
+#cd{font-size:8.5vmin;font-weight:bold;margin-top:2vmin;letter-spacing:1px}
+#gp .mid{color:#f0c9cd}
+#next{font-size:2.8vmin;color:#f0c9cd;margin-top:2vmin;line-height:1.5}
+#ph{padding:0}
+#ph .s{position:absolute;top:0;left:0;right:0;bottom:0;opacity:0;-webkit-transition:opacity 1.5s;transition:opacity 1.5s;display:-webkit-flex;display:flex;-webkit-align-items:flex-end;align-items:flex-end}
+#ph .s.on{opacity:1}
+#ph .s span{padding:3%;font-size:3vmin;background:rgba(0,0,0,.35);width:100%}
+</style></head><body>
+<div id="w">
+ <div class="row">
+  <div class="box"><div class="big" id="clk">--:--</div><div class="mid" id="dt"></div></div>
+  <div class="box"><div class="big" id="tmp">--°</div><div class="mid" id="wx">Météo en chargement…</div><div class="small" id="mm" style="margin-top:2vmin"></div></div>
+ </div>
+ <div class="row">
+  <div class="box" id="gp">
+   <div class="small" style="color:#f0c9cd">Prochain Grand Prix</div>
+   <div class="flag" id="fl"></div><div class="name" id="nm"></div>
+   <div id="cd"></div><div class="mid" id="cdl">jours · heures · min · sec</div>
+  </div>
+  <div class="box"><div class="small">Ensuite</div><div id="next"></div></div>
+ </div>
+ <div class="row">
+  <div class="box" id="ph"></div>
+ </div>
+</div>
+<script>
+// Courses : [année, mois, jour (dimanche de course), drapeau, nom, ville]
+var R=[
+[2027,3,14,"\uD83C\uDDE7\uD83C\uDDED","GP de Bahreïn","Sakhir"],
+[2027,3,21,"\uD83C\uDDF8\uD83C\uDDE6","GP d’Arabie saoudite","Djeddah"],
+[2027,4,4,"\uD83C\uDDE6\uD83C\uDDFA","GP d’Australie","Melbourne"],
+[2027,4,11,"\uD83C\uDDEF\uD83C\uDDF5","GP du Japon","Suzuka"],
+[2027,4,18,"\uD83C\uDDE8\uD83C\uDDF3","GP de Chine","Shanghai"],
+[2027,5,2,"\uD83C\uDDFA\uD83C\uDDF8","GP de Miami","Miami"],
+[2027,5,23,"\uD83C\uDDE8\uD83C\uDDE6","GP du Canada","Montréal"],
+[2027,6,6,"\uD83C\uDDF2\uD83C\uDDE8","GP de Monaco","Monaco"],
+[2027,6,20,"\uD83C\uDDF5\uD83C\uDDF9","GP du Portugal","Portimão"],
+[2027,7,4,"\uD83C\uDDEC\uD83C\uDDE7","GP de Grande-Bretagne","Silverstone"]
+];
+// Photos de famille : ajoute ici des liens d’images, ex. ["photos/1.jpg","photos/2.jpg"]
+var PH=[];
+var JOURS=["dimanche","lundi","mardi","mercredi","jeudi","vendredi","samedi"];
+var MOIS=["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
+function $(i){return document.getElementById(i)}
+function z(n){return n<10?"0"+n:""+n}
+function when(r){return new Date(r[0],r[1]-1,r[2],15,0,0)}
+function tick(){
+ var n=new Date();
+ $("clk").innerHTML=z(n.getHours())+":"+z(n.getMinutes());
+ $("dt").innerHTML=JOURS[n.getDay()]+" "+n.getDate()+" "+MOIS[n.getMonth()]+" "+n.getFullYear();
+ var i=0;while(i<R.length&&when(R[i])<=n)i++;
+ if(i>=R.length){$("nm").innerHTML="Saison terminée";$("cd").innerHTML="";return}
+ var r=R[i],d=when(r)-n,s=Math.floor(d/1000);
+ var j=Math.floor(s/86400);s-=j*86400;var h=Math.floor(s/3600);s-=h*3600;var m=Math.floor(s/60);s-=m*60;
+ $("fl").innerHTML=r[3];$("nm").innerHTML=r[4]+" – "+r[5];
+ $("cd").innerHTML=j+" j "+z(h)+" h "+z(m)+" min "+z(s)+" s";
+ var t="";for(var k=i+1;k<Math.min(i+5,R.length);k++){t+=R[k][3]+" "+R[k][4]+" · "+R[k][2]+" "+MOIS[R[k][1]-1]+"<br>"}
+ $("next").innerHTML=t;
+}
+setInterval(tick,1000);tick();
+// Météo (Châtillon-le-Duc) via Open-Meteo
+var WC={0:"Ciel dégagé",1:"Plutôt dégagé",2:"Partiellement nuageux",3:"Couvert",45:"Brouillard",48:"Brouillard givrant",51:"Bruine",53:"Bruine",55:"Bruine",61:"Pluie faible",63:"Pluie",65:"Forte pluie",71:"Neige faible",73:"Neige",75:"Forte neige",80:"Averses",81:"Averses",82:"Fortes averses",95:"Orage"};
+function meteo(){
+ try{
+  var x=new XMLHttpRequest();
+  x.open("GET","https://api.open-meteo.com/v1/forecast?latitude=47.30&longitude=6.07&current_weather=true&daily=temperature_2m_max,temperature_2m_min&timezone=Europe%2FParis",true);
+  x.onreadystatechange=function(){
+   if(x.readyState!==4)return;
+   if(x.status===200){
+    var o=JSON.parse(x.responseText),c=o.current_weather;
+    $("tmp").innerHTML=Math.round(c.temperature)+"°";
+    $("wx").innerHTML=(WC[c.weathercode]||"")+" · Châtillon-le-Duc";
+    $("mm").innerHTML="Aujourd’hui : min "+Math.round(o.daily.temperature_2m_min[0])+"° · max "+Math.round(o.daily.temperature_2m_max[0])+"°";
+   }else{$("wx").innerHTML="Météo indisponible (connexion refusée)"}
+  };
+  x.send();
+ }catch(e){$("wx").innerHTML="Météo indisponible"}
+}
+meteo();setInterval(meteo,900000);
+// Diaporama
+var G=["#2b4a6f","#5b3a5e","#2f5d50","#6b4a2e"],box=$("ph"),cur=0,sl=[];
+var N=PH.length?PH.length:G.length;
+for(var a=0;a<N;a++){
+ var d=document.createElement("div");d.className="s";
+ if(PH.length){d.style.background="#000 url("+PH[a]+") center/contain no-repeat"}
+ else{d.style.background=G[a];d.innerHTML="<span>Tes photos de famille défileront ici</span>"}
+ box.appendChild(d);sl.push(d);
+}
+sl[0].className="s on";
+setInterval(function(){sl[cur].className="s";cur=(cur+1)%N;sl[cur].className="s on"},7000);
+</script></body></html>
