@@ -1,1 +1,2 @@
 
+{"name":"maj","on":{"schedule":[{"cron":"*/30 * * * *"}],"workflow_dispatch":{}},"permissions":{"contents":"write"},"jobs":{"maj":{"runs-on":"ubuntu-latest","steps":[{"uses":"actions/checkout@v4"},{"run":"python3 maj.py"},{"run":"git config user.name maj-auto && git config user.email maj-auto@users.noreply.github.com && git add data.json && (git diff --cached --quiet || (git commit -m maj && git push))"}]}}}
